@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Galería Brawlers</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0d1117;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+    }
+    .brawler-card {
+      background: #1e222a;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+      border: 2px solid transparent;
+    }
+    .brawler-card.favorite {
+      border-color: gold;
+    }
+    .brawler-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      background: #333;
+    }
+    .brawler-name {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    .brawler-card[data-rarity="Inicial"] { background-color: #4c4c4c; }
+    .brawler-card[data-rarity="Especial"] { background-color: #3b82f6; }
+    .brawler-card[data-rarity="Superespecial"] { background-color: #10b981; }
+    .brawler-card[data-rarity="Épico"] { background-color: #8b5cf6; }
+    .brawler-card[data-rarity="Mítico"] { background-color: #eab308; }
+    .brawler-card[data-rarity="Legendario"] { background-color: #f97316; }
+    .brawler-card[data-rarity="Cromático"] { background-color: #ec4899; }
+    .info-box {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #111;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 300px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Galería de Brawlers</h1>
+  <div class="controls">
+    <input type="text" id="search" placeholder="Buscar por nombre...">
+    <select id="rarityFilter">
+      <option value="">Todas las rarezas</option>
+      <option value="Inicial">Inicial</option>
+      <option value="Especial">Especial</option>
+      <option value="Superespecial">Superespecial</option>
+      <option value="Épico">Épico</option>
+      <option value="Mítico">Mítico</option>
+      <option value="Legendario">Legendario</option>
+      <option value="Cromático">Cromático</option>
+    </select>
+    <select id="sort">
+      <option value="name">Ordenar por nombre</option>
+      <option value="rarity">Ordenar por rareza</option>
+    </select>
+  </div>
+  <div class="gallery" id="gallery"></div>
+
+  <div class="info-box" id="infoBox"></div>
+
+  <script>
+    const brawlers = [
+      { name: 'Shelly', rarity: 'Inicial', image: 'https://cdn.brawlify.com/brawlers/shelly.png', description: 'La brawler inicial del juego.' },
+      { name: 'Colt', rarity: 'Especial', image: 'https://cdn.brawlify.com/brawlers/colt.png', description: 'Tiroteo preciso con sus pistolas.' },
+      { name: 'Brock', rarity: 'Especial', image: 'https://cdn.brawlify.com/brawlers/brock.png', description: 'Lanza cohetes a distancia.' },
+      { name: 'Bo', rarity: 'Especial', image: 'https://cdn.brawlify.com/brawlers/bo.png', description: 'Explora con trampas explosivas.' },
+      { name: 'Jessie', rarity: 'Especial', image: 'https://cdn.brawlify.com/brawlers/jessie.png', description: 'Dispara rayos y construye torretas.' },
+      { name: 'Bull', rarity: 'Superespecial', image: 'https://cdn.brawlify.com/brawlers/bull.png', description: 'Cuerpo a cuerpo imparable.' },
+      { name: 'Poco', rarity: 'Superespecial', image: 'https://cdn.brawlify.com/brawlers/poco.png', description: 'Usa música para curar o dañar.' },
+      { name: 'Emz', rarity: 'Superespecial', image: 'https://cdn.brawlify.com/brawlers/emz.png', description: 'Spray para controlar multitudes.' },
+      { name: 'Carl', rarity: 'Superespecial', image: 'https://cdn.brawlify.com/brawlers/carl.png', description: 'Pico giratorio y carrito veloz.' }
+    ];
+
+    const gallery = document.getElementById('gallery');
+    const search = document.getElementById('search');
+    const rarityFilter = document.getElementById('rarityFilter');
+    const sort = document.getElementById('sort');
+    const infoBox = document.getElementById('infoBox');
+
+    function renderGallery() {
+      const query = search.value.toLowerCase();
+      const rarity = rarityFilter.value;
+      const sorted = [...brawlers].sort((a, b) => {
+        if (sort.value === 'name') return a.name.localeCompare(b.name);
+        if (sort.value === 'rarity') return a.rarity.localeCompare(b.rarity);
+        return 0;
+      });
+      gallery.innerHTML = '';
+      sorted.forEach(b => {
+        if ((query && !b.name.toLowerCase().includes(query)) || (rarity && b.rarity !== rarity)) return;
+        const card = document.createElement('div');
+        card.className = 'brawler-card';
+        card.dataset.rarity = b.rarity;
+        card.innerHTML = \`
+          <img src="\${b.image}" alt="\${b.name}">
+          <div class="brawler-name">\${b.name}</div>
+        \`;
+        card.onclick = () => showInfo(b);
+        card.ondblclick = () => card.classList.toggle('favorite');
+        gallery.appendChild(card);
+      });
+    }
+
+    function showInfo(brawler) {
+      infoBox.style.display = 'block';
+      infoBox.innerHTML = \`
+        <strong>\${brawler.name}</strong><br>
+        Rareza: \${brawler.rarity}<br><br>
+        \${brawler.description || ''}
+      \`;
+    }
+
+    search.oninput = rarityFilter.onchange = sort.onchange = renderGallery;
+
+    renderGallery();
+  </script>
+</body>
+</html>
