@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Galería Brawlers</title>
+  <title>Galería de Brawlers</title>
   <style>
     body {
       margin: 0;
@@ -71,10 +70,39 @@
       max-width: 300px;
       display: none;
     }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 400px;
+      margin: 0 auto 20px;
+      background: #1e222a;
+      padding: 20px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Galería de Brawlers</h1>
+
+  <form id="addForm">
+    <h3>Agregar Brawler</h3>
+    <input type="text" id="newName" placeholder="Nombre" required />
+    <select id="newRarity" required>
+      <option value="">Rareza</option>
+      <option value="Inicial">Inicial</option>
+      <option value="Especial">Especial</option>
+      <option value="Superespecial">Superespecial</option>
+      <option value="Épico">Épico</option>
+      <option value="Mítico">Mítico</option>
+      <option value="Legendario">Legendario</option>
+      <option value="Cromático">Cromático</option>
+    </select>
+    <input type="text" id="newImage" placeholder="URL de imagen" required />
+    <input type="text" id="newDesc" placeholder="Descripción" required />
+    <button type="submit">Agregar</button>
+  </form>
+
   <div class="controls">
     <input type="text" id="search" placeholder="Buscar por nombre...">
     <select id="rarityFilter">
@@ -92,8 +120,8 @@
       <option value="rarity">Ordenar por rareza</option>
     </select>
   </div>
-  <div class="gallery" id="gallery"></div>
 
+  <div class="gallery" id="gallery"></div>
   <div class="info-box" id="infoBox"></div>
 
   <script>
@@ -129,10 +157,10 @@
         const card = document.createElement('div');
         card.className = 'brawler-card';
         card.dataset.rarity = b.rarity;
-        card.innerHTML = \`
-          <img src="\${b.image}" alt="\${b.name}">
-          <div class="brawler-name">\${b.name}</div>
-        \`;
+        card.innerHTML = `
+          <img src="${b.image}" alt="${b.name}">
+          <div class="brawler-name">${b.name}</div>
+        `;
         card.onclick = () => showInfo(b);
         card.ondblclick = () => card.classList.toggle('favorite');
         gallery.appendChild(card);
@@ -141,12 +169,23 @@
 
     function showInfo(brawler) {
       infoBox.style.display = 'block';
-      infoBox.innerHTML = \`
-        <strong>\${brawler.name}</strong><br>
-        Rareza: \${brawler.rarity}<br><br>
-        \${brawler.description || ''}
-      \`;
+      infoBox.innerHTML = `
+        <strong>${brawler.name}</strong><br>
+        Rareza: ${brawler.rarity}<br><br>
+        ${brawler.description || ''}
+      `;
     }
+
+    document.getElementById('addForm').onsubmit = e => {
+      e.preventDefault();
+      const name = document.getElementById('newName').value;
+      const rarity = document.getElementById('newRarity').value;
+      const image = document.getElementById('newImage').value;
+      const description = document.getElementById('newDesc').value;
+      brawlers.push({ name, rarity, image, description });
+      renderGallery();
+      e.target.reset();
+    };
 
     search.oninput = rarityFilter.onchange = sort.onchange = renderGallery;
 
